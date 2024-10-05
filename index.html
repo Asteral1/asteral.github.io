@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pella Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Black background */
+            color: #fff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 250px;
+            background: #000;
+            border-left: 5px solid transparent;
+            border-image: linear-gradient(to bottom, #6a0dad, #ff1493);
+            border-image-slice: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            display: none; /* Initially hidden */
+        }
+
+        .sidebar input[type="text"], .sidebar input[type="password"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 90%;
+            background-color: #444;
+            border: none;
+            color: white;
+            border-radius: 10px; /* Curved textbox */
+        }
+
+        .sidebar button {
+            background-color: #6a0dad; /* Purple buttons */
+            color: #fff;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 20px; /* Curved buttons */
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: #8a2be2; /* Darker purple on hover */
+        }
+
+        /* Main content */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            width: calc(100% - 250px); /* Adjust content width based on sidebar */
+            transition: margin-right 0.3s ease;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap; /* Ensure cards can wrap to new lines if necessary */
+            gap: 15px; /* Space between cards */
+        }
+
+        .project-card {
+            background-color: #111; /* Black background for card */
+            padding: 10px;
+            border: 2px solid #333; /* Outline around the card */
+            border-radius: 8px;
+            width: 200px; /* Set fixed width */
+            height: 100px; /* Set fixed height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .project-card h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .project-card p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Switch Container for proper positioning */
+        .switch-container {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Position switch on the top-right corner */
+            z-index: 3;
+        }
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #000;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Adjusted position for switch when sidebar is toggled */
+        .switch-container.open {
+            right: 300px; /* Move switch further from sidebar when open */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Switch to toggle sidebar -->
+    <div class="switch-container" id="switch-container">
+        <label class="switch">
+            <input type="checkbox" id="sidebarToggle" onclick="toggleSidebar()">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2 id="loginText">Login</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="loginButton" onclick="login()">Login</button>
+        <div id="controls" style="display: none;">
+            <input type="text" id="server-id" placeholder="Enter Server ID">
+            <button onclick="deleteServer()">Delete Server</button>
+            <button onclick="startServer()">Start Server</button>
+            <button onclick="restartServer()">Restart Server</button>
+            <button onclick="stopServer()">Stop Server</button>
+            <button onclick="visitServer()">Visit Server</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <div class="project-card">
+            <h2>Node Server</h2>
+            <p>Server hosted on Pella ❤️</p>
+        </div>
+        <div class="project-card">
+            <h2>Unnamed</h2>
+            <p>Server hosted on Pella ❤️</p>
+        </div>
+    </div>
+
+    <script>
+        // Toggle the sidebar visibility
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var mainContent = document.getElementById('main-content');
+            var switchContainer = document.getElementById('switch-container');
+            var toggle = document.getElementById('sidebarToggle');
+
+            if (toggle.checked) {
+                sidebar.style.display = 'flex';
+                mainContent.style.marginRight = '250px'; // Adjust content when sidebar is open
+                switchContainer.classList.add('open'); // Move switch further from sidebar
+            } else {
+                sidebar.style.display = 'none';
+                mainContent.style.marginRight = '0';
+                switchContainer.classList.remove('open'); // Reset switch position
+            }
+        }
+
+        // Placeholder login function
+        function login() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Simple login check (replace this with your actual logic)
+            if (username === 'admin' && password === 'password') {
+                alert('Login successful!');
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('username').style.display = 'none'; // Hide username input
+                document.getElementById('password').style.display = 'none'; // Hide password input
+                document.getElementById('loginText').innerText = 'Admin Access Point'; // Change login text
+                document.getElementById('loginButton').style.display = 'none'; // Hide login button
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        }
+
+        // Allow login with Enter key
+        document.getElementById('password').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Placeholder server action functions
+        function deleteServer() {
+            const serverId = document.getElementById('server-id').value;
+            if (serverId) {
+                alert('Deleting server: ' + serverId);
+            } else {
+                alert('Please enter a server ID.');
+            }
+        }
+
+        function startServer() {
+            const serverId = document.getElementById('server-id').value;
+            if (serverId) {
+                alert('Starting server: ' + serverId);
+            } else {
+                alert('Please enter a server ID.');
+            }
+        }
+
+        function restartServer() {
+            const serverId = document.getElementById('server-id').value;
+            if (serverId) {
+                alert('Restarting server: ' + serverId);
+            } else {
+                alert('Please enter a server ID.');
+            }
+        }
+
+        function stopServer() {
+            const serverId = document.getElementById('server-id').value;
+            if (serverId) {
+                alert('Stopping server: ' + serverId);
+            } else {
+                alert('Please enter a server ID.');
+            }
+        }
+
+        function visitServer() {
+            const serverId = document.getElementById('server-id').value;
+            if (serverId) {
+                alert('Visiting server: ' + serverId);
+            } else {
+                alert('Please enter a server ID.');
+            }
+        }
+    </script>
+
+</body>
+</html>
